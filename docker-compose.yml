@@ -1,0 +1,20 @@
+services:
+  ygg-gui:
+    build: .
+    container_name: yggdrasil-gui
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:9999:9999"
+    volumes:
+      - /var/run/yggdrasil.sock:/var/run/yggdrasil.sock # Linux host setup
+    environment:
+      YGG_ADMIN_URI: "unix:///var/run/yggdrasil.sock" # For Windows/macOS: use tcp://host.docker.internal:9001
+      PORT: 9999
+      WEBROOT: "/" # Must end with a trailing slash
+    extra_hosts:
+      - "host.docker.internal:host-gateway" # Enables host.docker.internal on Linux/Windows
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
