@@ -1,5 +1,5 @@
 services:
-  ygg-gui:
+  yggdrasil-gui:
     build: .
     container_name: yggdrasil-gui
     restart: unless-stopped
