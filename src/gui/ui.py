@@ -1,13 +1,10 @@
 from datetime import timedelta
-from os import getenv
 from pathlib import Path
 
 from gui import labels, peer_infos
 from humanize import naturaldelta, naturalsize
 from nicegui import run, ui
 from ygg_client import YggClient
-
-webroot = getenv("WEBROOT", "/")
 
 
 def start() -> None:
@@ -19,7 +16,6 @@ def start() -> None:
     ui.run(
         title="Yggdrasil GUI",
         favicon=favicon_path,
-        port=int(getenv("PORT", "9999")),
         dark=True,
         reload=False,
     )
@@ -32,20 +28,20 @@ def render_tabs(active_route: str) -> None:
         active_route: The current URL path used to determine which tab to mark active.
     """
     routes = {
-        f"{webroot}": "General",
-        f"{webroot}peers": "Peers",
-        f"{webroot}tree": "Tree",
+        "/": "General",
+        "/peers": "Peers",
+        "/tree": "Tree",
     }
 
     with ui.tabs().props(
         'active-color="white" active-bg-color="transparent" indicator-color="cyan-5"'
     ).classes("w-full bg-slate-900 border-b border-slate-800 shadow-md") as tabs:
-        ui.tab("General", icon="info").on("click", lambda: ui.navigate.to(f"{webroot}"))
+        ui.tab("General", icon="info").on("click", lambda: ui.navigate.to("/"))
         ui.tab("Peers", icon="people").on(
-            "click", lambda: ui.navigate.to(f"{webroot}peers")
+            "click", lambda: ui.navigate.to("/peers")
         )
         ui.tab("Tree", icon="account_tree").on(
-            "click", lambda: ui.navigate.to(f"{webroot}tree")
+            "click", lambda: ui.navigate.to("/tree")
         )
 
     tabs.value = routes.get(active_route, "General")
@@ -93,10 +89,10 @@ def build_tree_hierarchy(flat_tree: list) -> list:
     return roots
 
 
-@ui.page(f"{webroot}tree")
+@ui.page("/tree")
 async def tree_page() -> None:
     """Render the Network Topology Tree page UI."""
-    render_tabs(f"{webroot}tree")
+    render_tabs("/tree")
 
     with ui.column().classes("w-full p-4 gap-4"):
         # Header / Action Bar
@@ -147,7 +143,7 @@ async def tree_page() -> None:
                     f"""
                     <div class="flex items-center gap-2 py-1 flex-wrap">
                         <span class="text-cyan-400 font-mono text-xs shrink-0">[{{{{ props.node.address }}}}]</span>
-                        <a :href="`{webroot}peer/${{props.node.key}}`"
+                        <a :href="`/peer/${{props.node.key}}`"
                         class="font-mono text-sm text-white underline hover:text-slate-300 break-all">
                             {{{{ props.node.key }}}}
                         </a>
@@ -178,7 +174,7 @@ async def tree_page() -> None:
         await render_tree_view()
 
 
-@ui.page(f"{webroot}")
+@ui.page("/")
 def general_page() -> None:
     """Render the main Overview page showing local Yggdrasil node details and build info."""
     render_tabs("/")
@@ -393,7 +389,7 @@ def table_column(checkbox, name, internal_name, ygg_peer_dict) -> None:
                 if internal_name == "key":
                     key = peer.get("key", "N/A")
                     if key and key != "N/A (No Key)":
-                        ui.link(str(key), target=f"{webroot}peer/{key}").classes(
+                        ui.link(str(key), target=f"/peer/{key}").classes(
                             "font-mono text-sm text-white underline hover:text-slate-300"
                         )
                         continue
@@ -501,7 +497,7 @@ def table_column(checkbox, name, internal_name, ygg_peer_dict) -> None:
                 )
 
 
-@ui.page(f"{webroot}peers")
+@ui.page("/peers")
 def peers_page() -> None:
     """Render the Connected Peers table page, including column settings and peer addition form."""
     render_tabs("/peers")
@@ -764,7 +760,7 @@ def peers_page() -> None:
                 ).classes("text-sky-400 hover:text-sky-300 underline font-mono")
 
 
-@ui.page(f"{webroot}peer/{{subpath:path}}/")
+@ui.page("/peer/{subpath:path}/")
 def peer_page(subpath: str) -> None:
     """Render details page for a specific peer matching the given public key subpath.
 

@@ -8,7 +8,8 @@ A modern web-based user interface to manage and monitor your Yggdrasil network n
 
 * Yggdrasil Network node running
 
-Currently only tested with yggdrasil-go.
+Currently only tested with yggdrasil-go on Arch and Debian Linux.
+Sould also work with other distributions and MS Windows.
 
 ## Features
 
@@ -33,21 +34,20 @@ services:
     container_name: yggdrasil-gui
     restart: unless-stopped
     ports:
-      - "127.0.0.1:9999:9999"
+      - "127.0.0.1:9999:8080"
     volumes:
-      - /var/run/yggdrasil.sock:/var/run/yggdrasil.sock # Linux host setup
+      - /var/run/yggdrasil.sock:/var/run/yggdrasil.sock  # Linux host setup (Arch)
+      # - /run/yggdrasil/yggdrasil.sock:/run/yggdrasil/yggdrasil.sock  # Linux host setup (Debian)
     environment:
-      YGG_ADMIN_URI: "unix:///var/run/yggdrasil.sock" # For Windows/macOS: use tcp://host.docker.internal:9001
-      PORT: 9999
-      WEBROOT: "/" # Must end with a trailing slash
+      YGG_ADMIN_URI: "unix:///var/run/yggdrasil.sock"  # For Windows: use tcp://host.docker.internal:9001
+      # YGG_ADMIN_URI: "unix:///run/yggdrasil/yggdrasil.sock"  # Debian
     extra_hosts:
-      - "host.docker.internal:host-gateway" # Enables host.docker.internal on Linux/Windows
+      - "host.docker.internal:host-gateway"  # Enables host.docker.internal on Linux/Windows for tcp sockets
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
-
 ```
 
 ### 2. Start the container
