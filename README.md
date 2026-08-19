@@ -8,14 +8,14 @@ A modern web-based user interface to manage and monitor your Yggdrasil network n
 
 * Yggdrasil Network node running
 
-Currently only tested with yggdrasil-go on Arch and Debian Linux.
-Sould also work with other distributions and MS Windows.
+Currently only tested with yggdrasil-go on Arch and Debian Linux.  
+Should also work with other distributions and MS Windows.
 
 ## Features
 
 * Overview of connected peers and active links
 * Real-time status and information of your Yggdrasil node
-* Adding and removing peers
+* Adding and removing peers while runtime
 * NiceGUI web interface
 
 ---
