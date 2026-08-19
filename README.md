@@ -74,4 +74,4 @@ docker compose up -d --remove-orphans
 
 ## 📄 License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the Affero General Public License v3. See `LICENSE` for more information.
