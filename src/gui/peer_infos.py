@@ -1,5 +1,4 @@
 from datetime import timedelta
-from time import sleep
 from typing import Any, Dict, List
 
 from humanize import naturaldelta, naturalsize
@@ -85,15 +84,6 @@ def _render_active_connections(
                         type="positive",
                         color="lime-600",
                         icon="link_off",
-                    )
-                    sleep(1)
-                    ui.navigate.reload()
-                else:
-                    ui.notify(
-                        f"{target} not disconnected: {response.get('error', {})}",
-                        type="positive",
-                        color="red-600",
-                        icon="link_on",
                     )
 
             with ui.row().classes("w-full justify-end gap-2"):

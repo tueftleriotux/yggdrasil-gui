@@ -1,10 +1,43 @@
 from datetime import timedelta
 from pathlib import Path
+from os import getenv
+
+import base64
+from fastapi import Request
+from starlette.responses import Response
 
 from gui import labels, peer_infos
 from humanize import naturaldelta, naturalsize
-from nicegui import run, ui
+from nicegui import run, ui, app
 from ygg_client import YggClient
+
+
+AUTH_USER = getenv("HTTP_BASIC_AUTH_USERNAME", "")
+AUTH_PASS = getenv("HTTP_BASIC_AUTH_PASSWORD", "")
+
+if AUTH_USER != "":
+    @app.middleware("http")
+    async def basic_auth_middleware(request: Request, call_next):
+        """Add headers and check the http basic auth."""
+        auth_header = request.headers.get("Authorization")
+
+        if auth_header:
+            try:
+                scheme, credentials = auth_header.split(" ")
+                if scheme.lower() == "basic":
+                    decoded = base64.b64decode(credentials).decode("utf-8")
+                    user, password = decoded.split(":", 1)
+                    if user == AUTH_USER and password == AUTH_PASS:
+                        return await call_next(request)
+            except Exception:
+                pass
+
+        # Löst das native Browser-Login-Fenster aus
+        return Response(
+            "Unauthorized",
+            status_code=401,
+            headers={"WWW-Authenticate": 'Basic realm="Yggdrasil GUI"'},
+        )
 
 
 def start() -> None:
@@ -273,12 +306,13 @@ def general_page() -> None:
 
     async def fetch_node_info():
         """Asynchronously query detailed node metadata and update the general UI components."""
+        retry_container = ui.column().classes("w-full gap-0 mt-2")
+
         if not self_key:
             lbl_name.set_text(self_data.get("build_name", "N/A"))
             lbl_version.set_text(self_data.get("build_version", "N/A"))
             lbl_platform.set_text("N/A")
             lbl_arch.set_text("N/A")
-            ui.navigate.reload()
             return
 
         try:
@@ -292,9 +326,6 @@ def general_page() -> None:
             lbl_version.set_text(str(node_info.get("buildversion", "N/A")))
             lbl_platform.set_text(str(node_info.get("buildplatform", "N/A")))
             lbl_arch.set_text(str(node_info.get("buildarch", "N/A")))
-
-            if str(node_info.get("buildplatform", "N/A")) == "N/A":
-                ui.navigate.reload()
 
             custom_metadata = {
                 k: v for k, v in node_info.items() if not k.startswith("build")
@@ -321,7 +352,14 @@ def general_page() -> None:
             lbl_version.set_text(str(self_data.get("build_version", "N/A")))
             lbl_platform.set_text("N/A (Timeout)")
             lbl_arch.set_text("N/A (Timeout)")
-            ui.navigate.reload()
+
+            with retry_container:
+                with ui.row().classes("items-center gap-2 mt-2"):
+                    ui.label("Failed to fetch node info.").classes("text-xs text-red-400")
+                    # Klick lädt die Seite komplett neu:
+                    ui.button("Retry", on_click=ui.navigate.reload).classes(
+                        "bg-slate-700 text-white hover:bg-slate-600 text-xs px-3 py-1"
+                    ).props("dense")
 
     ui.timer(0.05, fetch_node_info, once=True)
 

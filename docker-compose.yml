@@ -1,18 +1,28 @@
 services:
   yggdrasil-gui:
     build: .
+
     container_name: yggdrasil-gui
+
     restart: unless-stopped
+
     ports:
       - "127.0.0.1:9999:8080"
+
     volumes:
-      - /var/run/yggdrasil.sock:/var/run/yggdrasil.sock  # Linux host setup (Arch)
-      # - /run/yggdrasil/yggdrasil.sock:/run/yggdrasil/yggdrasil.sock  # Linux host setup (Debian)
+      - /var/run/yggdrasil.sock:/var/run/yggdrasil.sock  # Arch Linux
+      # - /run/yggdrasil/yggdrasil.sock:/run/yggdrasil/yggdrasil.sock  # Debian Linux
+
     environment:
-      YGG_ADMIN_URI: "unix:///var/run/yggdrasil.sock"  # For Windows: use tcp://host.docker.internal:9001
-      # YGG_ADMIN_URI: "unix:///run/yggdrasil/yggdrasil.sock"  # Debian
-    extra_hosts:
-      - "host.docker.internal:host-gateway"  # Enables host.docker.internal on Linux/Windows for tcp sockets
+      YGG_ADMIN_URI: "unix:///var/run/yggdrasil.sock"  # Arch Linux
+      # YGG_ADMIN_URI: "unix:///run/yggdrasil/yggdrasil.sock"  # Debian Linux
+      # YGG_ADMIN_URI: "tcp://host.docker.internal:9001"  # MS Windows
+      # HTTP_BASIC_AUTH_USERNAME: "admin"
+      # HTTP_BASIC_AUTH_PASSWORD: "changeme"
+
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"  # MS Windows
+
     logging:
       driver: "json-file"
       options:

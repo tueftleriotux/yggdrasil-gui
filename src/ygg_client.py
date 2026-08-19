@@ -1,7 +1,17 @@
 from json import dumps, loads
 from os import getenv
+from nicegui.ui import notify
 from socket import AF_INET, AF_UNIX, SOCK_STREAM, socket
 from typing import Any, Dict, Tuple, Union
+
+
+def show_error(error_string: str) -> None:
+    """Shows errors as toast on the bottom of the site and in the logs."""
+    print(error_string)
+    notify(error_string,
+           type='negative',
+           timeout=20_000
+           )
 
 
 def create_default_node(key: str) -> Dict[str, Any]:
@@ -103,13 +113,12 @@ class YggClient:
                     return {}
 
                 if json_object.get("status") == "error":
-                    print(f"[Yggdrasil] Request error: ({req_type}): {json_object}")
+                    show_error(f"[Yggdrasil] Request error:\nRequest: {payload}\nAnswer: {json_object}")
 
                 return json_object
 
         except (ConnectionRefusedError, FileNotFoundError, OSError) as e:
-            print(f"[Yggdrasil] Failed to connect to admin socket ({self.endpoint}): {e}")
-            return {}
+            show_error(f"[Yggdrasil] Failed to connect to admin socket ({self.endpoint}): {e}")
 
     def get_peer_dict(self) -> Dict[str, Dict[str, Any]]:
         """Aggregates active peer metrics by merging output from 'getPeers', 'getPaths', and 'getSessions'.
