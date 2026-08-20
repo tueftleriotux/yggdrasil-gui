@@ -2,6 +2,11 @@
 
 A modern web-based user interface to manage and monitor your Yggdrasil network node.
 
+![Local node overview](./docs/images/local-node-overview.avif)
+![Peers](./docs/images/peers.avif)
+![Peer overview](./docs/images/peer-overview.avif)
+![Tree](./docs/images/tree.avif)
+
 ---
 
 ## Requires
