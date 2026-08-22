@@ -795,7 +795,7 @@ def peers_page() -> None:
                 ).classes("text-sky-400 hover:text-sky-300 underline font-mono")
 
 
-@ui.page("/peer/{subpath:path}/")
+@ui.page("/peer/{subpath:path}")
 def peer_page(subpath: str) -> None:
     """Render details page for a specific peer matching the given public key subpath.
 
@@ -822,14 +822,14 @@ def peer_page(subpath: str) -> None:
     peer_infos._render_node_info(subpath, peer_info)
 
 
-@ui.page("/config_file/")
+@ui.page("/config_file")
 def config_file_page():
     render_tabs("/config_file")
 
     config_file_editor.config_file_editor_page()
 
 
-@ui.page("/restart/")
+@ui.page("/restart")
 def restart_page() -> None:
     """Render the restart page to trigger a graceful container reboot."""
     render_tabs("/restart")
