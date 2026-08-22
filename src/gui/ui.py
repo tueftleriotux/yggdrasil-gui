@@ -1,12 +1,13 @@
 from datetime import timedelta
 from pathlib import Path
 from os import getenv
+from asyncio import sleep
 
 import base64
 from fastapi import Request
 from starlette.responses import Response
 
-from gui import labels, peer_infos
+from gui import labels, peer_infos, config_file_editor
 from humanize import naturaldelta, naturalsize
 from nicegui import run, ui, app
 from ygg_client import YggClient
@@ -55,27 +56,23 @@ def start() -> None:
 
 
 def render_tabs(active_route: str) -> None:
-    """Render the top navigation tabs bar and highlight the active route.
-
-    Args:
-        active_route: The current URL path used to determine which tab to mark active.
-    """
+    """Render the top navigation tabs bar and highlight the active route."""
     routes = {
         "/": "General",
         "/peers": "Peers",
         "/tree": "Tree",
+        "/config_file": "Config file",
+        "/restart": "Restart",
     }
 
     with ui.tabs().props(
         'active-color="white" active-bg-color="transparent" indicator-color="cyan-5"'
     ).classes("w-full bg-slate-900 border-b border-slate-800 shadow-md") as tabs:
         ui.tab("General", icon="info").on("click", lambda: ui.navigate.to("/"))
-        ui.tab("Peers", icon="people").on(
-            "click", lambda: ui.navigate.to("/peers")
-        )
-        ui.tab("Tree", icon="account_tree").on(
-            "click", lambda: ui.navigate.to("/tree")
-        )
+        ui.tab("Peers", icon="people").on("click", lambda: ui.navigate.to("/peers"))
+        ui.tab("Tree", icon="account_tree").on("click", lambda: ui.navigate.to("/tree"))
+        ui.tab("Config file", icon="data_object").on("click", lambda: ui.navigate.to("/config_file"))
+        ui.tab("Restart", icon="restart_alt").on("click", lambda: ui.navigate.to("/restart"))
 
     tabs.value = routes.get(active_route, "General")
 
@@ -823,3 +820,37 @@ def peer_page(subpath: str) -> None:
 
     peer_infos._render_peer_overview(subpath, matching_peers, ygg)
     peer_infos._render_node_info(subpath, peer_info)
+
+
+@ui.page("/config_file/")
+def config_file_page():
+    render_tabs("/config_file")
+
+    config_file_editor.config_file_editor_page()
+
+
+@ui.page("/restart/")
+def restart_page() -> None:
+    """Render the restart page to trigger a graceful container reboot."""
+    render_tabs("/restart")
+
+    with ui.column().classes("w-full max-w-xl mx-auto p-6 mt-10 items-center text-center"):
+        ui.icon("restart_alt", size="64px").classes("text-cyan-400 mb-2")
+        ui.label("Yggdrasil-GUI Restart").classes("text-h4 font-bold text-white")
+
+        # Informational text explaining when to use it
+        ui.label(
+            "Here you can restart the application or the container. "
+            "Use this feature if you have changed your Docker configuration "
+            "(such as volumes or environment variables like admin URIs) "
+            ", edited the config file external "
+            "or if the socket connection to the Yggdrasil service has dropped."
+        ).classes("text-slate-400 mb-6 text-sm")
+
+        async def trigger_restart() -> None:
+            ui.notify("GUI is restarting... The container will be back up shortly.", type="warning", timeout=3000)
+            await sleep(2)
+            # Docker will automatically spin it back up.
+            exit(0)
+
+        ui.button("Restart GUI / Container Now", on_click=trigger_restart).props("color=red-700").classes("font-bold")

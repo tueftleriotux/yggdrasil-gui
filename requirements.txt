@@ -1,3 +1,4 @@
 # Pin exact dependencies for reproducible builds
 nicegui==2.10.0
 humanize==4.10.0
+hjson==3.1.0

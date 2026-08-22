@@ -12,11 +12,22 @@ services:
     volumes:
       - /var/run/yggdrasil.sock:/var/run/yggdrasil.sock  # Arch Linux
       # - /run/yggdrasil/yggdrasil.sock:/run/yggdrasil/yggdrasil.sock  # Debian Linux
+      - /etc/yggdrasil.conf:/etc/yggdrasil.conf # Arch Linux
+      # - /etc/yggdrasil/yggdrasil.conf:/etc/yggdrasil/yggdrasil.conf  # Debian Linux
+      # - C:\\ProgramData\\Yggdrasil\\yggdrasil.conf:C:\\ProgramData\\Yggdrasil\\yggdrasil.conf  # MS Windows
 
     environment:
       YGG_ADMIN_URI: "unix:///var/run/yggdrasil.sock"  # Arch Linux
       # YGG_ADMIN_URI: "unix:///run/yggdrasil/yggdrasil.sock"  # Debian Linux
       # YGG_ADMIN_URI: "tcp://host.docker.internal:9001"  # MS Windows
+      YGG_CONFIG_FILE_PATH: "/etc/yggdrasil.conf" # Arch Linux
+      # YGG_CONFIG_FILE_PATH: "/etc/yggdrasil/yggdrasil.conf" # Debian Linux
+      # YGG_CONFIG_FILE_PATH: "C:\\ProgramData\\Yggdrasil\\yggdrasil.conf"  # MS Windows
+      # Only supports HJSON formatted config files in gui edit mode!
+      # If you have a JSON formatted config, convert it with this command:
+      # "yggdrasil -normaliseconf -useconffile /etc/yggdrasil.conf"  # Arch Linux
+      # "yggdrasil -normaliseconf -useconffile /etc/yggdrasil/yggdrasil.conf"  # Debian Linux
+      # "yggdrasil -normaliseconf -useconffile C:\\ProgramData\\Yggdrasil\\yggdrasil.conf"  # MS Windows
       # HTTP_BASIC_AUTH_USERNAME: "admin"
       # HTTP_BASIC_AUTH_PASSWORD: "changeme"
 
