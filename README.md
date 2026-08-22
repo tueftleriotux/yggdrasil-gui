@@ -17,6 +17,7 @@ Should also work with other distributions and MS Windows.
 * Real-time status and information of your Yggdrasil node
 * Adding and removing peers while runtime
 * Editing config file in text editor or with gui editor.
+* HTTP basic auth
 
 ---
 
